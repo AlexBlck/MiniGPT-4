@@ -119,7 +119,6 @@ class TextCapDataset(Dataset):
         image_path = os.path.join(self.vis_root, image_file)
         image = Image.open(image_path).convert("RGB")
         image = self.vis_processor(image)
-        image = torch.cat([image, image], dim=0)
 
         caption = info["caption_str"]
         caption = self.text_processor(caption)
@@ -129,7 +128,7 @@ class TextCapDataset(Dataset):
             )
         )
         return {
-            "image": image,
+            "image": [image, image],
             "instruction_input": instruction,
             "answer": caption,
             "length": 2,
