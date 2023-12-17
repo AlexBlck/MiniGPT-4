@@ -1,9 +1,7 @@
 datasets:
-  textcaps_caption:
+  vixen:
     data_type: images
-    
+
     build_info:
-      image_path: /path/to/textcaps/train_images
+      image_path: /mnt/fast/nobackup/scratch4weeks/aj00869/ip2p4/ip2p_davinci_captions
       ann_path: /path/to/textcaps/TextCaps_0.1_train.json
-
-
