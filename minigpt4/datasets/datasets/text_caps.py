@@ -61,7 +61,9 @@ class VixenDataset(Dataset):
         image2 = self.vis_processor(image2)
         image = torch.stack([image1, image2], dim=0)
 
-        with open(join(image_file1.split("/")[0], "prompt_davinci.json"), "r") as f:
+        with open(
+            join(self.vis_root, image_file1.split("/")[0], "prompt_davinci.json"), "r"
+        ) as f:
             data = json.load(f)
 
         caption = data["caption_curie"]
@@ -72,6 +74,7 @@ class VixenDataset(Dataset):
             "image": image,
             "instruction_input": instruction,
             "answer": caption,
+            "length": 2,
         }
 
 
