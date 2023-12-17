@@ -4,11 +4,10 @@ model:
   max_txt_len: 500
   end_sym: "</s>"
   low_resource: True
-  prompt_template: '[INST] {} [/INST]'
-  ckpt: "please set this value to the path of pretrained checkpoint"
+  prompt_template: "[INST] {} [/INST]"
+  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/20231217161/checkpoint_2.pth"
   lora_r: 64
   lora_alpha: 16
-
 
 datasets:
   cc_sbu_align:
