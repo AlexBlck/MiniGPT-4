@@ -457,18 +457,16 @@ def visualize_all_bbox_together(image, generation):
 
 
 def gradio_reset(chat_state, img_list):
-    # if chat_state is not None:
-    #     chat_state.messages = []
-    # if img_list is not None:
-    #     img_list = []
+    if chat_state is not None:
+        chat_state.messages = []
+    if img_list is not None:
+        img_list = []
     return (
         None,
         gr.update(value=None, interactive=True),
         gr.update(placeholder="Upload your image and chat", interactive=True),
-        CONV_VISION.copy(),
-        [],
-        [],
-        [],
+        chat_state,
+        img_list,
     )
 
 
