@@ -490,15 +490,27 @@ def example_trigger(text_input, image, upload_flag, replace_flag, img_list):
 
 
 def gradio_ask(
-    user_message, chatbot, chat_state, gr_img, img_list, upload_flag, replace_flag
+    user_message,
+    chatbot,
+    chat_state,
+    gr_img1,
+    gr_img2,
+    img_list,
+    upload_flag,
+    replace_flag,
 ):
     if len(user_message) == 0:
         text_box_show = "Input should not be empty!"
     else:
         text_box_show = ""
 
-    if isinstance(gr_img, dict):
-        gr_img, mask = gr_img["image"], gr_img["mask"]
+    if isinstance(gr_img1, dict):
+        gr_img1, mask = gr_img1["image"], gr_img1["mask"]
+    else:
+        mask = None
+
+    if isinstance(gr_img2, dict):
+        gr_img2, mask = gr_img2["image"], gr_img2["mask"]
     else:
         mask = None
 
@@ -518,7 +530,7 @@ def gradio_ask(
             replace_flag = 0
             chatbot = []
         img_list = []
-        llm_message = chat.upload_img(gr_img, chat_state, img_list)
+        llm_message = chat.upload_img(gr_img1, gr_img2, chat_state, img_list)
         upload_flag = 0
 
     chat.ask(user_message, chat_state)
@@ -635,7 +647,8 @@ with gr.Blocks() as demo:
 
     with gr.Row():
         with gr.Column(scale=0.5):
-            image = gr.Image(type="pil", tool="sketch", brush_radius=20)
+            image1 = gr.Image(type="pil", tool="sketch", brush_radius=20)
+            image2 = gr.Image(type="pil", tool="sketch", brush_radius=20)
 
             temperature = gr.Slider(
                 minimum=0.1,
@@ -675,7 +688,14 @@ with gr.Blocks() as demo:
 
     upload_flag = gr.State(value=0)
     replace_flag = gr.State(value=0)
-    image.upload(
+
+    image1.upload(
+        image_upload_trigger,
+        [upload_flag, replace_flag, img_list],
+        [upload_flag, replace_flag],
+    )
+
+    image2.upload(
         image_upload_trigger,
         [upload_flag, replace_flag, img_list],
         [upload_flag, replace_flag],
@@ -766,7 +786,16 @@ with gr.Blocks() as demo:
 
     text_input.submit(
         gradio_ask,
-        [text_input, chatbot, chat_state, image, img_list, upload_flag, replace_flag],
+        [
+            text_input,
+            chatbot,
+            chat_state,
+            image1,
+            image2,
+            img_list,
+            upload_flag,
+            replace_flag,
+        ],
         [text_input, chatbot, chat_state, img_list, upload_flag, replace_flag],
         queue=False,
     ).success(
@@ -775,14 +804,23 @@ with gr.Blocks() as demo:
         [chatbot, chat_state],
     ).success(
         gradio_visualize,
-        [chatbot, image],
+        [chatbot, image1],
         [chatbot],
         queue=False,
     )
 
     send.click(
         gradio_ask,
-        [text_input, chatbot, chat_state, image, img_list, upload_flag, replace_flag],
+        [
+            text_input,
+            chatbot,
+            chat_state,
+            image1,
+            image2,
+            img_list,
+            upload_flag,
+            replace_flag,
+        ],
         [text_input, chatbot, chat_state, img_list, upload_flag, replace_flag],
         queue=False,
     ).success(
@@ -791,7 +829,7 @@ with gr.Blocks() as demo:
         [chatbot, chat_state],
     ).success(
         gradio_visualize,
-        [chatbot, image],
+        [chatbot, image1],
         [chatbot],
         queue=False,
     )
@@ -799,7 +837,7 @@ with gr.Blocks() as demo:
     clear.click(
         gradio_reset,
         [chat_state, img_list],
-        [chatbot, image, text_input, chat_state, img_list],
+        [chatbot, image1, text_input, chat_state, img_list],
         queue=False,
     )
 
