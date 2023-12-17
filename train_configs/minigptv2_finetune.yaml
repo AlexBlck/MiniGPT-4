@@ -13,7 +13,6 @@ model:
 
 datasets:
   vixen:
-    #
     batch_size: 6
     vis_processor:
       train:
