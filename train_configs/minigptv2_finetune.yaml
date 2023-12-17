@@ -12,8 +12,8 @@ model:
   lora_alpha: 16
 
 datasets:
-
-  textcaps_caption:  #
+  vixen:
+    #
     batch_size: 6
     vis_processor:
       train:
@@ -44,8 +44,8 @@ run:
   amp: True
   resume_ckpt_path: null
 
-  evaluate: False 
-  train_splits: ["train"]
+  evaluate: False
+  train_splits: [ "train" ]
 
   device: "cuda"
   world_size: 1
