@@ -59,6 +59,7 @@ class VixenDataset(Dataset):
         image2 = Image.open(image_path2).convert("RGB")
         image1 = self.vis_processor(image1)
         image2 = self.vis_processor(image2)
+        image = torch.stack([image1, image2], dim=0)
 
         with open(join(image_file1.split("/")[0], "prompt_davinci.json"), "r") as f:
             data = json.load(f)
@@ -119,7 +120,7 @@ class TextCapDataset(Dataset):
         image_path = os.path.join(self.vis_root, image_file)
         image = Image.open(image_path).convert("RGB")
         image = self.vis_processor(image)
-        image = torch.stack([image, image], dim=0)
+        # image = torch.stack([image, image], dim=0)
 
         caption = info["caption_str"]
         caption = self.text_processor(caption)
@@ -128,9 +129,12 @@ class TextCapDataset(Dataset):
                 random.choice(self.instruction_pool)
             )
         )
+        instruction_one = "<Img><ImageHere></Img> [caption] {} ".format(
+            random.choice(self.instruction_pool)
+        )
         return {
             "image": image,
-            "instruction_input": instruction,
+            "instruction_input": instruction_one,
             "answer": caption,
-            "length": 2,
+            # "length": 2,
         }
