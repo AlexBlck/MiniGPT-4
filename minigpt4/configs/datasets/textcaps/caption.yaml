@@ -3,7 +3,7 @@ datasets:
     data_type: images
     
     build_info:
-      image_path: /path/to/textcaps/train_images
-      ann_path: /path/to/textcaps/TextCaps_0.1_train.json
+      image_path: /mnt/fast/nobackup/scratch4weeks/aj00869/textcaps/train_images/
+      ann_path: /mnt/fast/nobackup/scratch4weeks/aj00869/textcaps/TextCaps_0.1_train.json
 
 
