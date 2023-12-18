@@ -20,6 +20,60 @@ from minigpt4.datasets.datasets.base_dataset import BaseDataset
 from minigpt4.datasets.datasets.caption_datasets import CaptionDataset
 
 
+class MetsDataset(Dataset):
+    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
+        """
+        vis_root (string): Root directory of images (e.g. coco/images/)
+        ann_root (string): directory to store the annotation file
+        """
+        self.vis_root = vis_root
+
+        self.vis_processor = vis_processor
+        self.text_processor = text_processor
+
+        self.instruction_pool = [
+            "Describe the defferences between the two images.",
+            "What are the differences between the two images?",
+            "What is different between the two images?",
+            "The differences between the two images are:",
+            "List all the edits made to the image.",
+            "List all the changes made to the image.",
+            "How is the second image different from the first?",
+            "How was the first image changed to make the second image?",
+            "What changes were made to the first image to make the second image?",
+            "How was the first image manipulated to make the second image?",
+            "Summarize the changes made to the image.",
+        ]
+
+        self.captions = torch.load(join(vis_root, "mets_train.pt"))
+        self.captions = [(k, v) for k, v in self.captions.items()]
+
+    def __len__(self):
+        return len(self.impaths)
+
+    def __getitem__(self, index):
+        image_file2, caption = self.impaths[index]
+        im_id = image_file2.split("_")[-1]
+        image_file1 = image_file2.replace(f"{im_id}.png", "0000.png")
+
+        image_path1 = join(self.vis_root, image_file1)
+        image_path2 = join(self.vis_root, image_file2)
+        image1 = Image.open(image_path1).convert("RGB")
+        image2 = Image.open(image_path2).convert("RGB")
+        image1 = self.vis_processor(image1)
+        image2 = self.vis_processor(image2)
+        image = torch.stack([image1, image2], dim=0)
+
+        caption = self.text_processor(caption)
+        instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
+        return {
+            "image": image,
+            "instruction_input": instruction,
+            "answer": caption,
+            "length": 2,
+        }
+
+
 class VixenDataset(Dataset):
     def __init__(self, vis_processor, text_processor, vis_root, ann_path):
         """
