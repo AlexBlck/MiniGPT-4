@@ -5,14 +5,14 @@ model:
   image_size: 448
   end_sym: "</s>"
   llama_model: "/mnt/fast/nobackup/scratch4weeks/aj00869/Llama-2-7b-chat-hf"
-  ckpt: "/mnt/fast/nobackup/users/aj00869/chapter4/MiniGPT-4/checkpoint_stage3.pth"
+  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/vixen/checkpoint_32.pth"
   use_grad_checkpoint: True
   chat_template: True
   lora_r: 64
   lora_alpha: 16
 
 datasets:
-  vixen:
+  mets:
     batch_size: 6
     vis_processor:
       train:
@@ -52,4 +52,4 @@ run:
   distributed: True
 
   wandb_log: True
-  job_name: minigptv2_finetune
+  job_name: mets_finetune
