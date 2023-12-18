@@ -49,10 +49,10 @@ class MetsDataset(Dataset):
         self.captions = [(k, v) for k, v in self.captions.items()]
 
     def __len__(self):
-        return len(self.impaths)
+        return len(self.captions)
 
     def __getitem__(self, index):
-        image_file2, caption = self.impaths[index]
+        image_file2, caption = self.captions[index]
         im_id = image_file2.split("_")[-1]
         image_file1 = image_file2.replace(f"{im_id}.png", "0000.png")
 
