@@ -310,20 +310,15 @@ class MiniGPTBase(BaseModel):
 
             if "length" in samples:
                 # the input is a image train (like videos)
-                print(img_embeds.shape)
                 bsz, pn, hs = img_embeds.shape
                 img_embeds = img_embeds.reshape(len(samples["image"]), -1, pn, hs)
-                print(img_embeds.shape)
                 cond_embeds, cond_atts = self.prompt_wrap(
                     img_embeds, img_atts, instruction, samples["length"]
                 )
-                print(cond_embeds.shape)
             else:
-                print(img_embeds.shape)
                 cond_embeds, cond_atts = self.prompt_wrap(
                     img_embeds, img_atts, instruction
                 )
-                print(cond_embeds.shape)
 
             ### prepare target tokens
             self.llama_tokenizer.padding_side = "right"
