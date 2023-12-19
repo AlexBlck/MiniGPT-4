@@ -602,6 +602,7 @@ def gradio_taskselect(idx):
         "[detection] ",
         "[identify] what is this ",
         "[vqa] ",
+        "[idc] What are the differences betwen the images "
     ]
     instruct_list = [
         "**Hint:** Type in whatever you want",
@@ -610,6 +611,7 @@ def gradio_taskselect(idx):
         "**Hint:** Type in a caption or phrase, and see object locations in the image",
         '**Hint:** Draw a bounding box on the uploaded image then send the command. Click the "clear" botton on the top right of the image before redraw',
         "**Hint:** Send a question to get a short answer",
+        "**Hint:** Image difference captioning"
     ]
     return prompt_list[idx], instruct_list[idx]
 
@@ -677,6 +679,7 @@ with gr.Blocks() as demo:
                     ["Detection"],
                     ["Identify"],
                     ["VQA"],
+                    ['IDC'],
                 ],
                 type="index",
                 label="Task Shortcuts",
