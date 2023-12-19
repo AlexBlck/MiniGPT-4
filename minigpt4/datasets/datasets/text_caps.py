@@ -141,6 +141,7 @@ class IERDataset(Dataset):
         self.vis_root = vis_root
 
         self.vis_processor = vis_processor
+        self.text_processor = text_processor
 
         self.instruction_pool = [
             "Give instructions to edit the image.",
