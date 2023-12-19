@@ -132,6 +132,53 @@ class VixenDataset(Dataset):
         }
 
 
+class IERDataset(Dataset):
+    def __init__(self, vis_processor, vis_root):
+        """
+        vis_root (string): Root directory of images (e.g. coco/images/)
+        ann_root (string): directory to store the annotation file
+        """
+        self.vis_root = vis_root
+
+        self.vis_processor = vis_processor
+
+        self.instruction_pool = [
+            "Give instructions to edit the image.",
+            "How would you edit the image?",
+            "What edits should I do no make the second image from the first?",
+            "Image editing instructions:",
+            "Image editing requests:",
+        ]
+
+        er_test = join(vis_root, "train.json")
+        with open(er_test) as f:
+            self.er_data = json.load(f)
+
+    def __len__(self):
+        return len(self.er_data)
+
+    def __getitem__(self, index):
+        sample = self.er_data[index]
+        image_file1 = join(self.vis_root, "images", sample["img0"])
+        image_file2 = join(self.vis_root, "images", sample["img1"])
+        image1 = Image.open(image_file1).convert("RGB")
+        image2 = Image.open(image_file2).convert("RGB")
+        image1 = self.vis_processor(image1)
+        image2 = self.vis_processor(image2)
+        image = torch.stack([image1, image2], dim=0)
+
+        caption = sample["sents"][random.randint(0, len(sample["sents"]) - 1)]
+
+        instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
+        return {
+            "image": image,
+            "instruction_input": instruction,
+            "answer": caption,
+            "length": 2,
+            "path": image_file1,
+        }
+
+
 class TextCapDataset(Dataset):
     def __init__(self, vis_processor, text_processor, vis_root, ann_path):
         """
