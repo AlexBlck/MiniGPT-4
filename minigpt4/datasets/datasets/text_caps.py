@@ -133,7 +133,7 @@ class VixenDataset(Dataset):
 
 
 class IERDataset(Dataset):
-    def __init__(self, vis_processor, vis_root):
+    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
         """
         vis_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -168,6 +168,7 @@ class IERDataset(Dataset):
         image = torch.stack([image1, image2], dim=0)
 
         caption = sample["sents"][random.randint(0, len(sample["sents"]) - 1)]
+        caption = self.text_processor(caption)
 
         instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
         return {
