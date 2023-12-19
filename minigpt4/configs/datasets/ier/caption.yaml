@@ -1,0 +1,7 @@
+datasets:
+  ier:
+    data_type: images
+
+    build_info:
+      image_path: /mnt/fast/nobackup/scratch4weeks/aj00869/edit_requests
+      ann_path: /path/to/textcaps/TextCaps_0.1_train.json
