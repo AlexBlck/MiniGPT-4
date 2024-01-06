@@ -249,11 +249,11 @@ class MagicBrushChain(Dataset):
 
         imgs = []
         for idx in idxs:
-            image = self.dataset[int(idx)]["source_img"]
+            image = self.dataset[int(idx)]["source_img"].convert("RGB")
             image = self.vis_processor(image)
             imgs.append(image)
 
-        image = self.dataset[int(idxs[-1])]["target_img"]
+        image = self.dataset[int(idxs[-1])]["target_img"].convert("RGB")
         imgs.append(self.vis_processor(image))
         image = torch.stack(imgs, dim=0)
 
@@ -307,8 +307,8 @@ class MagicBrushFirstLast(Dataset):
         index = self.ids[index]
         idxs = np.where([x == index for x in self.info["img_id"]])[0]
 
-        image1 = self.dataset[int(idxs[0])]["source_img"]
-        image2 = self.dataset[int(idxs[-1])]["target_img"]
+        image1 = self.dataset[int(idxs[0])]["source_img"].convert("RGB")
+        image2 = self.dataset[int(idxs[-1])]["target_img"].convert("RGB")
         image1 = self.vis_processor(image1)
         image2 = self.vis_processor(image2)
         image = torch.stack([image1, image2], dim=0)
