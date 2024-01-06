@@ -11,6 +11,7 @@ import numpy as np
 import skimage.io as io
 import torch
 import webdataset as wds
+from datasets import load_dataset
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon, Rectangle
 from PIL import Image
@@ -214,7 +215,11 @@ class MagicBrushFirstLast(Dataset):
         vis_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
         """
-        self.vis_root = vis_root
+        self.dataset = load_dataset("osunlp/MagicBrush", cache_dir=vis_root)["train"]
+        self.info = self.dataset.remove_columns(
+            ["source_img", "target_img", "mask_img"]
+        )
+        self.ids = np.unique(self.info["img_id"])
 
         self.vis_processor = vis_processor
         self.text_processor = text_processor
@@ -227,24 +232,23 @@ class MagicBrushFirstLast(Dataset):
             "Image editing requests:",
         ]
 
-        er_test = join(vis_root, "train.json")
-        with open(er_test) as f:
-            self.er_data = json.load(f)
-
     def __len__(self):
-        return len(self.er_data)
+        return len(self.ids)
 
     def __getitem__(self, index):
-        sample = self.er_data[index]
-        image_file1 = join(self.vis_root, "images", sample["img0"])
-        image_file2 = join(self.vis_root, "images", sample["img1"])
-        image1 = Image.open(image_file1).convert("RGB")
-        image2 = Image.open(image_file2).convert("RGB")
+        index = self.ids[index]
+        idxs = np.where([x == index for x in self.info["img_id"]])[0]
+
+        image1 = self.dataset[idxs[0]]["source_img"]
+        image2 = self.dataset[idxs[-1]]["target_img"]
         image1 = self.vis_processor(image1)
         image2 = self.vis_processor(image2)
         image = torch.stack([image1, image2], dim=0)
 
-        caption = sample["sents"][random.randint(0, len(sample["sents"]) - 1)]
+        caption = [
+            f"{i}: {self.info[int(idxs[i])]['instruction']}." for i in range(len(idxs))
+        ]
+        caption = "\n".join(caption)
         caption = self.text_processor(caption)
 
         instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
@@ -253,7 +257,6 @@ class MagicBrushFirstLast(Dataset):
             "instruction_input": instruction,
             "answer": caption,
             "length": 2,
-            "path": image_file1,
         }
 
 
