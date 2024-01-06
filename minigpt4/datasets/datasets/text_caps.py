@@ -175,11 +175,17 @@ class CLEVRDataset(Dataset):
             for k in nochange_captions
         }
 
+        splits = join(vis_root, "splits.json")
+        with open(splits) as f:
+            splits = json.load(f)
+
+        self.ids = splits["train"]
+
     def __len__(self):
-        return len(self.change_captions)
+        return len(self.ids)
 
     def __getitem__(self, index):
-        index = list(self.change_captions.keys())[index]
+        index = self.ids[index]
         image_file1 = join(self.vis_root, "images", f"CLEVR_default_{index:06d}.png")
         if random.random() < 0.5:
             image_file2 = join(
