@@ -244,6 +244,8 @@ class MagicBrushChain(Dataset):
     def __getitem__(self, index):
         index = self.ids[index]
         idxs = np.where([x == index for x in self.info["img_id"]])[0]
+        if len(idxs) < 3:
+            return self.__getitem__(random.randint(0, len(self) - 1))
 
         imgs = []
         for idx in idxs:
