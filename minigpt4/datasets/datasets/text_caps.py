@@ -132,6 +132,126 @@ class VixenDataset(Dataset):
         }
 
 
+class CLEVRDataset(Dataset):
+    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
+        """
+        vis_root (string): Root directory of images (e.g. coco/images/)
+        ann_root (string): directory to store the annotation file
+        """
+        self.vis_root = vis_root
+
+        self.vis_processor = vis_processor
+        self.text_processor = text_processor
+
+        self.instruction_pool = [
+            "Describe the defferences between the two images.",
+            "What are the differences between the two images?",
+            "What is different between the two images?",
+            "The differences between the two images are:",
+            "List all the edits made to the image.",
+            "List all the changes made to the image.",
+            "How is the second image different from the first?",
+            "How was the first image changed to make the second image?",
+            "What changes were made to the first image to make the second image?",
+            "How was the first image manipulated to make the second image?",
+            "Summarize the changes made to the image.",
+        ]
+
+        change_captions = join(vis_root, "change_captions.json")
+        with open(change_captions) as f:
+            change_captions = json.load(f)
+
+        nochange_captions = join(vis_root, "no_change_captions.json")
+        with open(nochange_captions) as f:
+            nochange_captions = json.load(f)
+
+        self.change_captions = {
+            int(k.replace(".png", "").split("_")[-1]): change_captions[k]
+            for k in change_captions
+        }
+        self.nochange_captions = {
+            int(k.replace(".png", "").split("_")[-1]): nochange_captions[k]
+            for k in nochange_captions
+        }
+
+    def __len__(self):
+        return len(self.change_captions)
+
+    def __getitem__(self, index):
+        image_file1 = join(self.vis_root, "images", f'CLEVR_default_{index:06d}.png'))
+        if random.random() < 0.5:
+            image_file2 = join(self.vis_root, "sc_images", f'CLEVR_semantic_{index:06d}.png'))
+            caption = random.choice(self.change_captions[index])
+        else:
+            image_file2 = join(self.vis_root, "nsc_images", f'CLEVR_nonsemantic_{index:06d}.png'))
+            caption = random.choice(self.nochange_captions[index])
+
+        caption = self.text_processor(caption)
+        image1 = Image.open(image_file1).convert("RGB")
+        image2 = Image.open(image_file2).convert("RGB")
+        image1 = self.vis_processor(image1)
+        image2 = self.vis_processor(image2)
+        image = torch.stack([image1, image2], dim=0)
+
+        instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
+        return {
+            "image": image,
+            "instruction_input": instruction,
+            "answer": caption,
+            "length": 2,
+            "path": image_file1,
+        }
+
+
+class MagicBrushFirstLast(Dataset):
+    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
+        """
+        vis_root (string): Root directory of images (e.g. coco/images/)
+        ann_root (string): directory to store the annotation file
+        """
+        self.vis_root = vis_root
+
+        self.vis_processor = vis_processor
+        self.text_processor = text_processor
+
+        self.instruction_pool = [
+            "Give instructions to edit the image.",
+            "How would you edit the image?",
+            "What edits should I do no make the second image from the first?",
+            "Image editing instructions:",
+            "Image editing requests:",
+        ]
+
+        er_test = join(vis_root, "train.json")
+        with open(er_test) as f:
+            self.er_data = json.load(f)
+
+    def __len__(self):
+        return len(self.er_data)
+
+    def __getitem__(self, index):
+        sample = self.er_data[index]
+        image_file1 = join(self.vis_root, "images", sample["img0"])
+        image_file2 = join(self.vis_root, "images", sample["img1"])
+        image1 = Image.open(image_file1).convert("RGB")
+        image2 = Image.open(image_file2).convert("RGB")
+        image1 = self.vis_processor(image1)
+        image2 = self.vis_processor(image2)
+        image = torch.stack([image1, image2], dim=0)
+
+        caption = sample["sents"][random.randint(0, len(sample["sents"]) - 1)]
+        caption = self.text_processor(caption)
+
+        instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
+        return {
+            "image": image,
+            "instruction_input": instruction,
+            "answer": caption,
+            "length": 2,
+            "path": image_file1,
+        }
+
+
 class IERDataset(Dataset):
     def __init__(self, vis_processor, text_processor, vis_root, ann_path):
         """

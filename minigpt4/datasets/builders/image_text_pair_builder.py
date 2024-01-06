@@ -22,8 +22,10 @@ from minigpt4.datasets.datasets.llava_dataset import (LlavaConversationDataset,
 from minigpt4.datasets.datasets.multitask_conversation import \
     MultiTaskConversationDataset
 from minigpt4.datasets.datasets.ocrvqa_dataset import OCRVQADataset
-from minigpt4.datasets.datasets.text_caps import (IERDataset, MetsDataset,
-                                                  TextCapDataset, VixenDataset)
+from minigpt4.datasets.datasets.text_caps import (CLEVRDataset, IERDataset,
+                                                  MagicBrushFirstLast,
+                                                  MetsDataset, TextCapDataset,
+                                                  VixenDataset)
 from minigpt4.datasets.datasets.unnatural_instruction import UnnaturalDataset
 from minigpt4.datasets.datasets.vg_dataset import ReferVisualGenomeDataset
 
@@ -333,6 +335,74 @@ class IERCaptionBuilder(BaseDatasetBuilder):
     train_dataset_cls = IERDataset
 
     DATASET_CONFIG_DICT = {"default": "configs/datasets/ier/caption.yaml"}
+
+    def _download_ann(self):
+        pass
+
+    def _download_vis(self):
+        pass
+
+    def build(self):
+        self.build_processors()
+
+        build_info = self.config.build_info
+
+        datasets = dict()
+        split = "train"
+
+        # create datasets
+        # [NOTE] return inner_datasets (wds.DataPipeline)
+        dataset_cls = self.train_dataset_cls
+        datasets[split] = dataset_cls(
+            vis_processor=self.vis_processors[split],
+            text_processor=self.text_processors[split],
+            ann_path=build_info.ann_path,
+            vis_root=build_info.image_path,
+        )
+
+        return datasets
+
+
+@registry.register_builder("magicbrushfirstlast")
+class MBFLCaptionBuilder(BaseDatasetBuilder):
+    train_dataset_cls = MagicBrushFirstLast
+
+    DATASET_CONFIG_DICT = {
+        "default": "configs/datasets/magicbrushfirstlast/caption.yaml"
+    }
+
+    def _download_ann(self):
+        pass
+
+    def _download_vis(self):
+        pass
+
+    def build(self):
+        self.build_processors()
+
+        build_info = self.config.build_info
+
+        datasets = dict()
+        split = "train"
+
+        # create datasets
+        # [NOTE] return inner_datasets (wds.DataPipeline)
+        dataset_cls = self.train_dataset_cls
+        datasets[split] = dataset_cls(
+            vis_processor=self.vis_processors[split],
+            text_processor=self.text_processors[split],
+            ann_path=build_info.ann_path,
+            vis_root=build_info.image_path,
+        )
+
+        return datasets
+
+
+@registry.register_builder("clevr")
+class CLEVRCaptionBuilder(BaseDatasetBuilder):
+    train_dataset_cls = CLEVRDataset
+
+    DATASET_CONFIG_DICT = {"default": "configs/datasets/clevr/caption.yaml"}
 
     def _download_ann(self):
         pass
