@@ -209,6 +209,66 @@ class CLEVRDataset(Dataset):
         }
 
 
+class MagicBrushChain(Dataset):
+    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
+        """
+        vis_root (string): Root directory of images (e.g. coco/images/)
+        ann_root (string): directory to store the annotation file
+        """
+        self.dataset = load_dataset("osunlp/MagicBrush", cache_dir=vis_root)["train"]
+        self.info = self.dataset.remove_columns(
+            ["source_img", "target_img", "mask_img"]
+        )
+        self.ids = np.unique(self.info["img_id"])
+
+        self.vis_processor = vis_processor
+        self.text_processor = text_processor
+
+        self.instruction_pool = [
+            "Give instructions to edit the image.",
+            "How would you edit the image?",
+            "What edits should I do no make the second image from the first?",
+            "Image editing instructions:",
+            "Image editing requests:",
+        ]
+
+    def __len__(self):
+        return len(self.ids)
+
+    def __getitem__(self, index):
+        index = self.ids[index]
+        idxs = np.where([x == index for x in self.info["img_id"]])[0]
+
+        imgs = []
+        for idx in idxs:
+            image = self.dataset[idx]["source_img"]
+            image = self.vis_processor(image)
+            imgs.append(image)
+
+        image = self.dataset[idxs[-1]]["target_img"]
+        imgs.append(self.vis_processor(image))
+        image = torch.stack(imgs, dim=0)
+
+        caption = [
+            f"{i}: {self.info[int(idxs[i])]['instruction']}." for i in range(len(idxs))
+        ]
+        caption = "\n".join(caption)
+        caption = self.text_processor(caption)
+
+        imgs_instruction = " ".join(
+            ["<Img><ImageHere></Img>" for _ in range(len(idxs) + 1)]
+        )
+        instruction = (
+            f"{imgs_instruction} [idc] {random.choice(self.instruction_pool)} "
+        )
+        return {
+            "image": image,
+            "instruction_input": instruction,
+            "answer": caption,
+            "length": len(idxs) + 1,
+        }
+
+
 class MagicBrushFirstLast(Dataset):
     def __init__(self, vis_processor, text_processor, vis_root, ann_path):
         """
