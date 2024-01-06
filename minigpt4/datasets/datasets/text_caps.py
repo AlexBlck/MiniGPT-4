@@ -178,12 +178,16 @@ class CLEVRDataset(Dataset):
         return len(self.change_captions)
 
     def __getitem__(self, index):
-        image_file1 = join(self.vis_root, "images", f'CLEVR_default_{index:06d}.png'))
+        image_file1 = join(self.vis_root, "images", f"CLEVR_default_{index:06d}.png")
         if random.random() < 0.5:
-            image_file2 = join(self.vis_root, "sc_images", f'CLEVR_semantic_{index:06d}.png'))
+            image_file2 = join(
+                self.vis_root, "sc_images", f"CLEVR_semantic_{index:06d}.png"
+            )
             caption = random.choice(self.change_captions[index])
         else:
-            image_file2 = join(self.vis_root, "nsc_images", f'CLEVR_nonsemantic_{index:06d}.png'))
+            image_file2 = join(
+                self.vis_root, "nsc_images", f"CLEVR_nonsemantic_{index:06d}.png"
+            )
             caption = random.choice(self.nochange_captions[index])
 
         caption = self.text_processor(caption)
