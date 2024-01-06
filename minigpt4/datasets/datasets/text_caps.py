@@ -251,7 +251,7 @@ class MagicBrushChain(Dataset):
             image = self.vis_processor(image)
             imgs.append(image)
 
-        image = self.dataset[idxs[-1]]["target_img"]
+        image = self.dataset[int(idxs[-1])]["target_img"]
         imgs.append(self.vis_processor(image))
         image = torch.stack(imgs, dim=0)
 
