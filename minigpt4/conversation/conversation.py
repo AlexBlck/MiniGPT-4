@@ -7,9 +7,14 @@ from typing import Any, List, Tuple
 
 import torch
 from PIL import Image
-from transformers import (AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer,
-                          StoppingCriteria, StoppingCriteriaList,
-                          TextIteratorStreamer)
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    LlamaTokenizer,
+    StoppingCriteria,
+    StoppingCriteriaList,
+    TextIteratorStreamer,
+)
 
 from minigpt4.common.registry import registry
 
@@ -249,12 +254,10 @@ class Chat:
             image_emb, _ = self.model.encode_img(image)
             img_list[i] = image_emb
 
-    def upload_img(self, image1, image2, conv, img_list):
+    def upload_img(self, num_imgs, conv):
         conv.append_message(
-            conv.roles[0], "<Img><ImageHere></Img> <Img><ImageHere></Img>"
+            conv.roles[0], " ".join(["<Img><ImageHere></Img>"] * num_imgs)
         )
-        img_list.append(image1)
-        img_list.append(image2)
         msg = "Received."
 
         return msg
