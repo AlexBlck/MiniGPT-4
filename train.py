@@ -88,7 +88,7 @@ def main():
 
     if cfg.run_cfg.wandb_log:
         wandb.login()
-        wandb.init(project="minigptv", name=cfg.run_cfg.job_name)
+        wandb.init(project="CLEVR", name=cfg.run_cfg.job_name)
         # wandb.watch(model)
 
     runner = get_runner_class(cfg)(
