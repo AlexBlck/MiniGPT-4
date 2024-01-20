@@ -18,10 +18,13 @@ import minigpt4.tasks as tasks
 from minigpt4.common.config import Config
 from minigpt4.common.dist_utils import get_rank, init_distributed_mode
 from minigpt4.common.logger import setup_logger
-from minigpt4.common.optims import (LinearWarmupCosineLRScheduler,
-                                    LinearWarmupStepLRScheduler)
+from minigpt4.common.optims import (
+    LinearWarmupCosineLRScheduler,
+    LinearWarmupStepLRScheduler,
+)
 from minigpt4.common.registry import registry
 from minigpt4.common.utils import now
+
 # imports modules for registration
 from minigpt4.datasets.builders import *
 from minigpt4.models import *
@@ -88,7 +91,7 @@ def main():
 
     if cfg.run_cfg.wandb_log:
         wandb.login()
-        wandb.init(project="CLEVR", name=cfg.run_cfg.job_name)
+        wandb.init(project="minigptv", name=cfg.run_cfg.job_name)
         # wandb.watch(model)
 
     runner = get_runner_class(cfg)(
