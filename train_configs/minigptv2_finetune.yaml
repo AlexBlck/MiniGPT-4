@@ -12,7 +12,7 @@ model:
   lora_alpha: 16
 
 datasets:
-  vixen:
+  mets:
     batch_size: 6
     vis_processor:
       train:
@@ -41,7 +41,7 @@ run:
   output_dir: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts"
 
   amp: True
-  resume_ckpt_path: /mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/20240120121/checkpoint_214.pth
+  resume_ckpt_path: null
 
   evaluate: False
   train_splits: [ "train" ]
@@ -52,4 +52,4 @@ run:
   distributed: True
 
   wandb_log: True
-  job_name: ip2p
+  job_name: mets_scratch

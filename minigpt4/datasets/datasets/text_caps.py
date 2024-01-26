@@ -54,8 +54,7 @@ class MetsDataset(Dataset):
 
     def __getitem__(self, index):
         image_file2, caption = self.captions[index]
-        im_id = image_file2.split("_")[-1]
-        image_file1 = image_file2.replace(f"{im_id}.png", "0000.png")
+        image_file1 = image_file2[:-6] + "00.png"
 
         image_path1 = join(self.vis_root, image_file1)
         image_path2 = join(self.vis_root, image_file2)
