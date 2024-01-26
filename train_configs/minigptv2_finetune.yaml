@@ -5,7 +5,7 @@ model:
   image_size: 448
   end_sym: "</s>"
   llama_model: "/mnt/fast/nobackup/scratch4weeks/aj00869/Llama-2-7b-chat-hf"
-  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/checkpoint_stage3.pth"
+  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/20240124113/checkpoint_299.pth"
   use_grad_checkpoint: True
   chat_template: True
   lora_r: 64
@@ -52,4 +52,4 @@ run:
   distributed: True
 
   wandb_log: True
-  job_name: mets_scratch
+  job_name: mets_from_ip2p
