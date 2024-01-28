@@ -22,7 +22,9 @@ from minigpt4.datasets.datasets.caption_datasets import CaptionDataset
 
 
 class MetsDataset(Dataset):
-    def __init__(self, vis_processor, text_processor, vis_root, num_imgs, use_text):
+    def __init__(
+        self, vis_processor, text_processor, vis_root, num_imgs, use_text, ann_path
+    ):
         """
         vis_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
