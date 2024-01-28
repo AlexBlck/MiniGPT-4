@@ -13,7 +13,7 @@ model:
 
 datasets:
   mets:
-    batch_size: 6
+    batch_size: 2
     vis_processor:
       train:
         name: "blip2_image_train"
@@ -52,4 +52,4 @@ run:
   distributed: True
 
   wandb_log: True
-  job_name: mets_text_2_img
+  job_name: mets_text_4_img
