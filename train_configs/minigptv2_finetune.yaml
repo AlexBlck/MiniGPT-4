@@ -52,4 +52,4 @@ run:
   distributed: True
 
   wandb_log: True
-  job_name: mets_text_only
+  job_name: mets_text_4_img
