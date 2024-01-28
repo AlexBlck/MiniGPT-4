@@ -4,6 +4,6 @@ datasets:
 
     build_info:
       image_path: /mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/mets
-      num_imgs: 2
+      num_imgs: 0
       use_text: true
       ann_path: /mnt/fast/
