@@ -22,7 +22,7 @@ from minigpt4.datasets.datasets.caption_datasets import CaptionDataset
 
 
 class MetsDataset(Dataset):
-    def __init__(self, vis_processor, text_processor, vis_root, num_imgs):
+    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
         """
         vis_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -32,7 +32,7 @@ class MetsDataset(Dataset):
         self.vis_processor = vis_processor
         self.text_processor = text_processor
 
-        self.num_imgs = num_imgs
+        self.num_imgs = ann_path
 
         self.instruction_pool = [
             "Describe the defferences between the images.",
