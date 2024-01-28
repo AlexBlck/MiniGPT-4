@@ -22,7 +22,7 @@ from minigpt4.datasets.datasets.caption_datasets import CaptionDataset
 
 
 class MetsDataset(Dataset):
-    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
+    def __init__(self, vis_processor, text_processor, vis_root, num_imgs, use_text):
         """
         vis_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -32,7 +32,8 @@ class MetsDataset(Dataset):
         self.vis_processor = vis_processor
         self.text_processor = text_processor
 
-        self.num_imgs = ann_path
+        self.num_imgs = num_imgs
+        self.use_text = use_text
 
         self.instruction_pool = [
             "Describe the defferences between the images.",
@@ -56,26 +57,36 @@ class MetsDataset(Dataset):
 
     def __getitem__(self, index):
         image_file2, caption = self.captions[index]
-        max_idx = int(image_file2[-6:-4])
-        img_ids = np.linspace(0, max_idx, 4, dtype=int)
+        if self.num_imgs > 0:
+            max_idx = int(image_file2[-6:-4])
+            img_ids = np.linspace(0, max_idx, 4, dtype=int)
 
-        imgs = []
-        for img_id in img_ids:
-            image_file = image_file2[:-6] + f"{img_id:02d}.png"
-            image_path = join(self.vis_root, image_file)
-            image = Image.open(image_path).convert("RGB")
-            image = self.vis_processor(image)
-            imgs.append(image)
+            imgs = []
+            for img_id in img_ids:
+                image_file = image_file2[:-6] + f"{img_id:02d}.png"
+                image_path = join(self.vis_root, image_file)
+                image = Image.open(image_path).convert("RGB")
+                image = self.vis_processor(image)
+                imgs.append(image)
 
-        image = torch.stack(imgs, dim=0)
+            image = torch.stack(imgs, dim=0)
 
-        caption = self.text_processor(caption)
-        imgs_instruction = " ".join(
-            ["<Img><ImageHere></Img>" for _ in range(self.num_imgs)]
-        )
-        instruction = (
-            f"{imgs_instruction} [idc] {random.choice(self.instruction_pool)} "
-        )
+            caption = self.text_processor(caption)
+            imgs_instruction = " ".join(
+                ["<Img><ImageHere></Img>" for _ in range(self.num_imgs)]
+            )
+        else:
+            imgs_instruction = ""
+            image = torch.zeros(0)
+
+        if self.use_text:
+            text_filepath = image_file2[:-9] + ".txt"
+            lines = open(join(self.vis_root, text_filepath), "r").readlines()
+            text_instruction = "edits list: " + " ".join(lines)
+        else:
+            text_instruction = ""
+
+        instruction = f"{imgs_instruction} {text_instruction} [idc] {random.choice(self.instruction_pool)} "
         return {
             "image": image,
             "instruction_input": instruction,
