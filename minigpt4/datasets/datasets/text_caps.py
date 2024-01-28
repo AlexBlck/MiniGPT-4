@@ -22,7 +22,7 @@ from minigpt4.datasets.datasets.caption_datasets import CaptionDataset
 
 
 class MetsDataset(Dataset):
-    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
+    def __init__(self, vis_processor, text_processor, vis_root, num_imgs):
         """
         vis_root (string): Root directory of images (e.g. coco/images/)
         ann_root (string): directory to store the annotation file
@@ -32,17 +32,19 @@ class MetsDataset(Dataset):
         self.vis_processor = vis_processor
         self.text_processor = text_processor
 
+        self.num_imgs = num_imgs
+
         self.instruction_pool = [
-            "Describe the defferences between the two images.",
-            "What are the differences between the two images?",
-            "What is different between the two images?",
-            "The differences between the two images are:",
+            "Describe the defferences between the images.",
+            "What are the differences between the images?",
+            "What is different between the images?",
+            "The differences between the images are:",
             "List all the edits made to the image.",
             "List all the changes made to the image.",
-            "How is the second image different from the first?",
-            "How was the first image changed to make the second image?",
-            "What changes were made to the first image to make the second image?",
-            "How was the first image manipulated to make the second image?",
+            "How is the last image different from the first?",
+            "How was the first image changed to make the last image?",
+            "What changes were made to the first image to make the last image?",
+            "How was the first image manipulated to make the last image?",
             "Summarize the changes made to the image.",
         ]
 
@@ -54,23 +56,31 @@ class MetsDataset(Dataset):
 
     def __getitem__(self, index):
         image_file2, caption = self.captions[index]
-        image_file1 = image_file2[:-6] + "00.png"
+        max_idx = int(image_file2[-6:-4])
+        img_ids = np.linspace(0, max_idx, 4, dtype=int)
 
-        image_path1 = join(self.vis_root, image_file1)
-        image_path2 = join(self.vis_root, image_file2)
-        image1 = Image.open(image_path1).convert("RGB")
-        image2 = Image.open(image_path2).convert("RGB")
-        image1 = self.vis_processor(image1)
-        image2 = self.vis_processor(image2)
-        image = torch.stack([image1, image2], dim=0)
+        imgs = []
+        for img_id in img_ids:
+            image_file = image_file2[:-6] + f"{img_id:02d}.png"
+            image_path = join(self.vis_root, image_file)
+            image = Image.open(image_path).convert("RGB")
+            image = self.vis_processor(image)
+            imgs.append(image)
+
+        image = torch.stack(imgs, dim=0)
 
         caption = self.text_processor(caption)
-        instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
+        imgs_instruction = " ".join(
+            ["<Img><ImageHere></Img>" for _ in range(self.num_imgs)]
+        )
+        instruction = (
+            f"{imgs_instruction} [idc] {random.choice(self.instruction_pool)} "
+        )
         return {
             "image": image,
             "instruction_input": instruction,
             "answer": caption,
-            "length": 2,
+            "length": self.num_imgs,
         }
 
 
