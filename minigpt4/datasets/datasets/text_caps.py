@@ -56,43 +56,47 @@ class MetsDataset(Dataset):
         return len(self.captions)
 
     def __getitem__(self, index):
-        image_file2, caption = self.captions[index]
-        if self.num_imgs > 0:
-            max_idx = int(image_file2[-6:-4])
-            img_ids = np.linspace(0, max_idx, self.num_imgs, dtype=int)
+        try:
+            image_file2, caption = self.captions[index]
+            if self.num_imgs > 0:
+                max_idx = int(image_file2[-6:-4])
+                img_ids = np.linspace(0, max_idx, self.num_imgs, dtype=int)
 
-            imgs = []
-            for img_id in img_ids:
-                image_file = image_file2[:-6] + f"{img_id:02d}.png"
-                image_path = join(self.vis_root, image_file)
-                image = Image.open(image_path).convert("RGB")
-                image = self.vis_processor(image)
-                imgs.append(image)
+                imgs = []
+                for img_id in img_ids:
+                    image_file = image_file2[:-6] + f"{img_id:02d}.png"
+                    image_path = join(self.vis_root, image_file)
+                    image = Image.open(image_path).convert("RGB")
+                    image = self.vis_processor(image)
+                    imgs.append(image)
 
-            image = torch.stack(imgs, dim=0)
+                image = torch.stack(imgs, dim=0)
 
-            caption = self.text_processor(caption)
-            imgs_instruction = " ".join(
-                ["<Img><ImageHere></Img>" for _ in range(self.num_imgs)]
-            )
-        else:
-            imgs_instruction = ""
-            image = torch.zeros(0)
+                caption = self.text_processor(caption)
+                imgs_instruction = " ".join(
+                    ["<Img><ImageHere></Img>" for _ in range(self.num_imgs)]
+                )
+            else:
+                imgs_instruction = ""
+                image = torch.zeros(0)
 
-        if self.use_text:
-            text_filepath = image_file2[:-9] + ".txt"
-            lines = open(join(self.vis_root, text_filepath), "r").readlines()
-            text_instruction = "edits list: " + " ".join(lines)
-        else:
-            text_instruction = ""
+            if self.use_text:
+                text_filepath = image_file2[:-9] + ".txt"
+                lines = open(join(self.vis_root, text_filepath), "r").readlines()
+                text_instruction = "edits list: " + " ".join(lines)
+            else:
+                text_instruction = ""
 
-        instruction = f"{imgs_instruction} {text_instruction} [idc] {random.choice(self.instruction_pool)} "
-        return {
-            "image": image,
-            "instruction_input": instruction,
-            "answer": caption,
-            "length": self.num_imgs,
-        }
+            instruction = f"{imgs_instruction} {text_instruction} [idc] {random.choice(self.instruction_pool)} "
+            return {
+                "image": image,
+                "instruction_input": instruction,
+                "answer": caption,
+                "length": self.num_imgs,
+            }
+        except Exception as e:
+            print(e)
+            return self.__getitem__(random.randint(0, len(self.captions) - 1))
 
 
 class VixenDataset(Dataset):
