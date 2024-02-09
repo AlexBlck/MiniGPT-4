@@ -32,7 +32,7 @@ class MetsDataset(Dataset):
         self.vis_processor = vis_processor
         self.text_processor = text_processor
 
-        self.num_imgs = 0
+        self.num_imgs = 2
         self.use_text = True
 
         self.instruction_pool = [
