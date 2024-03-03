@@ -32,7 +32,7 @@ class MetsDataset(Dataset):
         self.vis_processor = vis_processor
         self.text_processor = text_processor
 
-        self.num_imgs = 2
+        self.num_imgs = 4
         self.use_text = True
 
         self.instruction_pool = [
@@ -83,7 +83,9 @@ class MetsDataset(Dataset):
             if self.use_text:
                 text_filepath = image_file2[:-9] + ".txt"
                 lines = open(join(self.vis_root, text_filepath), "r").readlines()
-                text_instruction = "edits list: " + " ".join(lines)
+                text_instruction = "edits list: " + " ".join(
+                    [x[:100] for x in lines[:15]]
+                )
             else:
                 text_instruction = ""
 
