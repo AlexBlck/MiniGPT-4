@@ -23,7 +23,7 @@ datasets:
         name: "blip_caption"
     sample_ratio: 30
 
-runmets_text_2_img:
+run:
   task: image_text_pretrain
   # optimizer
   lr_sched: "linear_warmup_cosine_lr"
