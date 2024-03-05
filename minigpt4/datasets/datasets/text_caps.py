@@ -159,6 +159,62 @@ class VixenDataset(Dataset):
         }
 
 
+class SpotDiffDataset(Dataset):
+    def __init__(self, vis_processor, text_processor, vis_root, ann_path):
+        """
+        vis_root (string): Root directory of images (e.g. coco/images/)
+        ann_root (string): directory to store the annotation file
+        """
+        self.vis_root = vis_root
+
+        self.vis_processor = vis_processor
+        self.text_processor = text_processor
+
+        self.instruction_pool = [
+            "Describe the defferences between the two images.",
+            "What are the differences between the two images?",
+            "What is different between the two images?",
+            "The differences between the two images are:",
+            "List all the edits made to the image.",
+            "List all the changes made to the image.",
+            "How is the second image different from the first?",
+            "How was the first image changed to make the second image?",
+            "What changes were made to the first image to make the second image?",
+            "How was the first image manipulated to make the second image?",
+            "Summarize the changes made to the image.",
+        ]
+
+        change_captions = join(vis_root, "train.json")
+        with open(change_captions) as f:
+            self.change_captions = json.load(f)
+
+    def __len__(self):
+        return len(self.change_captions)
+
+    def __getitem__(self, index):
+        info = self.change_captions[index]
+        id = info["img_id"]
+        image_file1 = join(self.vis_root, "resized_images", f"{id}.png")
+        image_file2 = join(self.vis_root, "resized_images", f"{id}_2.png")
+
+        caption = random.choice(info["sentences"])
+        caption = self.text_processor(caption)
+        image1 = Image.open(image_file1).convert("RGB")
+        image2 = Image.open(image_file2).convert("RGB")
+        image1 = self.vis_processor(image1)
+        image2 = self.vis_processor(image2)
+        image = torch.stack([image1, image2], dim=0)
+
+        instruction = f"<Img><ImageHere></Img> <Img><ImageHere></Img> [idc] {random.choice(self.instruction_pool)} "
+        return {
+            "image": image,
+            "instruction_input": instruction,
+            "answer": caption,
+            "length": 2,
+            "path": image_file1,
+        }
+
+
 class CLEVRDataset(Dataset):
     def __init__(self, vis_processor, text_processor, vis_root, ann_path):
         """

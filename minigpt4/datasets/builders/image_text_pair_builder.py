@@ -5,28 +5,39 @@ import warnings
 from minigpt4.common.registry import registry
 from minigpt4.datasets.builders.base_dataset_builder import BaseDatasetBuilder
 from minigpt4.datasets.datasets.aok_vqa_datasets import AOKVQADataset
-from minigpt4.datasets.datasets.cc_sbu_dataset import (CCSBUAlignDataset,
-                                                       CCSBUDataset)
+from minigpt4.datasets.datasets.cc_sbu_dataset import CCSBUAlignDataset, CCSBUDataset
 from minigpt4.datasets.datasets.coco_caption import COCOCapDataset
-from minigpt4.datasets.datasets.coco_dataset import (InvReferCOCODataset,
-                                                     ReferCOCODataset)
+from minigpt4.datasets.datasets.coco_dataset import (
+    InvReferCOCODataset,
+    ReferCOCODataset,
+)
 from minigpt4.datasets.datasets.coco_vqa_datasets import COCOVQADataset
-from minigpt4.datasets.datasets.flickr import (CaptionToObjectDataset,
-                                               GroundedDetailDataset,
-                                               PhraseToObjectDataset)
+from minigpt4.datasets.datasets.flickr import (
+    CaptionToObjectDataset,
+    GroundedDetailDataset,
+    PhraseToObjectDataset,
+)
 from minigpt4.datasets.datasets.gqa_datasets import GQADataset
 from minigpt4.datasets.datasets.laion_dataset import LaionDataset
-from minigpt4.datasets.datasets.llava_dataset import (LlavaConversationDataset,
-                                                      LlavaDetailDataset,
-                                                      LlavaReasonDataset)
-from minigpt4.datasets.datasets.multitask_conversation import \
-    MultiTaskConversationDataset
+from minigpt4.datasets.datasets.llava_dataset import (
+    LlavaConversationDataset,
+    LlavaDetailDataset,
+    LlavaReasonDataset,
+)
+from minigpt4.datasets.datasets.multitask_conversation import (
+    MultiTaskConversationDataset,
+)
 from minigpt4.datasets.datasets.ocrvqa_dataset import OCRVQADataset
-from minigpt4.datasets.datasets.text_caps import (CLEVRDataset, IERDataset,
-                                                  MagicBrushChain,
-                                                  MagicBrushFirstLast,
-                                                  MetsDataset, TextCapDataset,
-                                                  VixenDataset)
+from minigpt4.datasets.datasets.text_caps import (
+    CLEVRDataset,
+    IERDataset,
+    MagicBrushChain,
+    MagicBrushFirstLast,
+    MetsDataset,
+    SpotDiffDataset,
+    TextCapDataset,
+    VixenDataset,
+)
 from minigpt4.datasets.datasets.unnatural_instruction import UnnaturalDataset
 from minigpt4.datasets.datasets.vg_dataset import ReferVisualGenomeDataset
 
@@ -437,6 +448,39 @@ class CLEVRCaptionBuilder(BaseDatasetBuilder):
     train_dataset_cls = CLEVRDataset
 
     DATASET_CONFIG_DICT = {"default": "configs/datasets/clevr/caption.yaml"}
+
+    def _download_ann(self):
+        pass
+
+    def _download_vis(self):
+        pass
+
+    def build(self):
+        self.build_processors()
+
+        build_info = self.config.build_info
+
+        datasets = dict()
+        split = "train"
+
+        # create datasets
+        # [NOTE] return inner_datasets (wds.DataPipeline)
+        dataset_cls = self.train_dataset_cls
+        datasets[split] = dataset_cls(
+            vis_processor=self.vis_processors[split],
+            text_processor=self.text_processors[split],
+            ann_path=build_info.ann_path,
+            vis_root=build_info.image_path,
+        )
+
+        return datasets
+
+
+@registry.register_builder("spotdiff")
+class SpotDiffBuilder(BaseDatasetBuilder):
+    train_dataset_cls = SpotDiffDataset
+
+    DATASET_CONFIG_DICT = {"default": "configs/datasets/spotdiff/caption.yaml"}
 
     def _download_ann(self):
         pass

@@ -1,0 +1,7 @@
+datasets:
+  spotdiff:
+    data_type: images
+
+    build_info:
+      image_path: /mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/spot-the-diff/
+      ann_path: /path/to/textcaps/TextCaps_0.1_train.json
