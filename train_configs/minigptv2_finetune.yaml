@@ -5,15 +5,15 @@ model:
   image_size: 448
   end_sym: "</s>"
   llama_model: "/mnt/fast/nobackup/scratch4weeks/aj00869/Llama-2-7b-chat-hf"
-  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/20240124113/checkpoint_299.pth"
+  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/20240120100/checkpoint_299.pth"
   use_grad_checkpoint: True
   chat_template: True
   lora_r: 64
   lora_alpha: 16
 
 datasets:
-  mets:
-    batch_size: 1
+  clevr:
+    batch_size: 6
     vis_processor:
       train:
         name: "blip2_image_train"
@@ -23,7 +23,7 @@ datasets:
         name: "blip_caption"
     sample_ratio: 30
 
-run:
+runmets_text_2_img:
   task: image_text_pretrain
   # optimizer
   lr_sched: "linear_warmup_cosine_lr"
@@ -32,7 +32,7 @@ run:
   warmup_lr: 1e-6
 
   weight_decay: 0.05
-  max_epoch: 300
+  max_epoch: 600
   num_workers: 6
   warmup_steps: 1000
   iters_per_epoch: 1000
@@ -52,4 +52,4 @@ run:
   distributed: True
 
   wandb_log: True
-  job_name: mets_text_2_img
+  job_name: Clevr
