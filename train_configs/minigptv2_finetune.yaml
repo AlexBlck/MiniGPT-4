@@ -5,7 +5,7 @@ model:
   image_size: 448
   end_sym: "</s>"
   llama_model: "/mnt/fast/nobackup/scratch4weeks/aj00869/Llama-2-7b-chat-hf"
-  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/checkpoint_stage3.pt"
+  ckpt: "/mnt/fast/nobackup/scratch4weeks/aj00869/chapter4/ckpts/checkpoint_stage3.pth"
   use_grad_checkpoint: True
   chat_template: True
   lora_r: 64
